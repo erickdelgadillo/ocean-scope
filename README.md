@@ -42,7 +42,7 @@ The ENV1 configuration starts with the archived **day-7 CTD section** and **day-
 
 A configuration JSON contains a `datasets` array. Each dataset declares a file, source columns, optional CSV delimiter, variables, optional color limits, and depth limit. Files are resolved relative to the configuration file; output directories are also relative to that file. Longitude may be west-positive in the source data, as in ENVISION: OceanScope uses great-circle **distance from the easternmost/coastal endpoint**, taking absolute longitude differences, without interpreting stored signs as a geospatial standard. The input's latitude units must be degrees.
 
-Each run validates required columns, removes non-finite samples per variable, interpolates using MATLAB's linear `griddata` on a 60-column and 5 m vertical grid, produces PNG sections, and writes a JSON manifest. Interpolated NaNs outside the convex hull are left blank rather than filled or extrapolated.
+Each run validates required columns, removes non-finite samples per variable, explicitly averages exact duplicate (distance, depth) coordinates and records counts for each variable in `manifest.json`, then interpolates using MATLAB's linear `griddata` on a 60-column and 5 m vertical grid, produces PNG sections, and writes a JSON manifest. Interpolated NaNs outside the convex hull are left blank rather than filled or extrapolated.
 
 ## Project layout
 
