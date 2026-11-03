@@ -23,7 +23,7 @@
         {"id":"nitrite","column":"no2","limits":[0,0.5]},
         {"id":"nitrate","column":"no3","limits":[0,10]},
         {"id":"ammonium","column":"nh4","limits":[0,0.8]},
-        {"id":"tin","column":"tin","limits":[0,10]},
+        {"id":"tin","column":"TIN","limits":[0,10]},
         {"id":"phosphate","column":"po4","limits":[0.1,0.8]},
         {"id":"silicate","column":"sio2","limits":[4,8]},
         {"id":"chlorophyll_a","column":"Total_Chla","limits":[0,10]}
