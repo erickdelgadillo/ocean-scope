@@ -1,0 +1,33 @@
+{
+  "output_dir": "../results/env1",
+  "datasets": [
+    {
+      "id": "env1_ctd_day7",
+      "file": "../../coastal-upwelling-oceanography/data/longitudinal/ctd_env1_d7.xlsx",
+      "columns": {"longitude":"Longitude","latitude":"Latitude","depth":"depth"},
+      "max_depth": 260,
+      "variables": [
+        {"id":"temperature","column":"temp","limits":[12,16]},
+        {"id":"salinity","column":"sal","limits":[34,36]},
+        {"id":"fluorescence","column":"fluo","limits":[-0.11,10]},
+        {"id":"turbidity","column":"turb","limits":[-0.09,4]},
+        {"id":"par","column":"par","limits":[0.0001,100]}
+      ]
+    },
+    {
+      "id": "env1_nutrients_day1",
+      "file": "../../coastal-upwelling-oceanography/data/longitudinal/nuts_env1_d1.xlsx",
+      "columns": {"longitude":"lon","latitude":"lat","depth":"Prof"},
+      "max_depth": 200,
+      "variables": [
+        {"id":"nitrite","column":"no2","limits":[0,0.5]},
+        {"id":"nitrate","column":"no3","limits":[0,10]},
+        {"id":"ammonium","column":"nh4","limits":[0,0.8]},
+        {"id":"tin","column":"tin","limits":[0,10]},
+        {"id":"phosphate","column":"po4","limits":[0.1,0.8]},
+        {"id":"silicate","column":"sio2","limits":[4,8]},
+        {"id":"chlorophyll_a","column":"Total_Chla","limits":[0,10]}
+      ]
+    }
+  ]
+}

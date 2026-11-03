@@ -1,0 +1,29 @@
+name: Static checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  repository-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON configurations and sample CSV
+        run: |
+          python3 - <<'PY'
+          import csv
+          import json
+          from pathlib import Path
+          for path in Path("configs").glob("*.json"):
+              config = json.loads(path.read_text())
+              assert config["datasets"], path
+              for ds in config["datasets"]:
+                  assert ds["variables"], ds["id"]
+                  assert ds["columns"]["depth"], ds["id"]
+          with Path("examples/synthetic_ctd.csv").open() as fh:
+              rows = list(csv.DictReader(fh))
+          assert len(rows) >= 6
+          assert {"Longitude","Latitude","depth","temp","sal"} <= set(rows[0])
+          print("Static checks passed. MATLAB runtime not exercised.")
+          PY

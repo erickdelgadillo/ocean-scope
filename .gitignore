@@ -1,0 +1,8 @@
+results/
+*.asv
+*.m~
+*.autosave
+.DS_Store
+*.prj
+slprj/
+codegen/

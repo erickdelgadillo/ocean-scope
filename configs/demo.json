@@ -1,0 +1,16 @@
+{
+  "output_dir": "../results/demo",
+  "datasets": [
+    {
+      "id": "synthetic_ctd",
+      "file": "../examples/synthetic_ctd.csv",
+      "delimiter": ",",
+      "columns": {"longitude":"Longitude","latitude":"Latitude","depth":"depth"},
+      "max_depth": 25,
+      "variables": [
+        {"id":"temperature","column":"temp","limits":[10,20]},
+        {"id":"salinity","column":"sal","limits":[33,37]}
+      ]
+    }
+  ]
+}
