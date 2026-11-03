@@ -25,7 +25,7 @@ end
 
 datasets = config.datasets;
 if iscell(datasets), datasets = [datasets{:}]; end
-outputEntries = struct('dataset',{},'variable',{},'input',{},'output',{},'valid_samples',{});
+outputEntries = struct('dataset',{},'variable',{},'input',{},'output',{},'valid_samples',{},'qc',{});
 for i = 1:numel(datasets)
     d = datasets(i);
     required = {'id','file','columns','variables','max_depth'};
@@ -40,7 +40,7 @@ for i = 1:numel(datasets)
     if iscell(variables), variables = [variables{:}]; end
     for j = 1:numel(variables)
         v = variables(j);
-        [f, n] = oceanscope.plot_section(T, d, v);
+        [f, n, qc] = oceanscope.plot_section(T, d, v);
         safeId = regexprep(char(string(d.id)), '[^A-Za-z0-9_-]', '_');
         safeVar = regexprep(char(string(v.id)), '[^A-Za-z0-9_-]', '_');
         outputFile = fullfile(outputDir,sprintf('%s_%s.png',safeId,safeVar));
@@ -49,7 +49,7 @@ for i = 1:numel(datasets)
         clear cleanup
         outputEntries(end+1) = struct('dataset',string(d.id), ... %#ok<AGROW>
             'variable',string(v.id),'input',string(sourceFile), ...
-            'output',string(outputFile),'valid_samples',n);
+            'output',string(outputFile),'valid_samples',n,'qc',qc);
     end
 end
 manifest = struct('config',configPath,'matlab_release',string(version('-release')), ...
