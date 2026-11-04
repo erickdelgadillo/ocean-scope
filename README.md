@@ -4,7 +4,7 @@ MATLAB toolkit for reproducible oceanographic CTD and nutrient transect analyses
 
 ## Status
 
-**Development scaffold (not yet scientifically validated).** The code is independent of the historical publication repository. ENV1 is the first target; ENV2 and ENV3 are reserved for subsequent independent validation. No historical files are changed or imported into this repository.
+**Pre-release: ENV1 numerically validated against the pinned curated archive.** The code is independent of the historical publication repository. ENV1 is the first target; ENV2 and ENV3 are reserved for subsequent independent validation. No historical files are changed or imported into this repository.
 
 ## Quick start
 
@@ -36,13 +36,28 @@ run_oceanscope("configs/env1.json")
 
 The ENV1 configuration starts with the archived **day-7 CTD section** and **day-1 nutrient section**. The eight-day CTD series is an upcoming extension. Configurations point to existing source data rather than copying historical material.
 
-**Important:** the current implementation uses generic, data-driven grids and does not guarantee pixel- or numerically identical figures to the published MATLAB outputs. A full numerical regression suite must be established before claiming scientific equivalence.
+ENV1 regression matches all 12 variables with zero numerical and NaN-mask
+differences on MATLAB R2026a. See [validation results and limitations](docs/VALIDATION.md).
+ENV2/ENV3 validation is still required before v1.0.
 
 ## Execution model
 
-A configuration JSON contains a `datasets` array. Each dataset declares a file, source columns, optional CSV delimiter, variables, optional color limits, and depth limit. Files are resolved relative to the configuration file; output directories are also relative to that file. Longitude may be west-positive in the source data, as in ENVISION: OceanScope uses great-circle **distance from the easternmost/coastal endpoint**, taking absolute longitude differences, without interpreting stored signs as a geospatial standard. The input's latitude units must be degrees.
+Each dataset declares input columns, variables, optional color limits and maximum
+depth in metres. Paths are relative to the configuration. Optional `interpolation`
+settings are `horizontal_points` (default 60), `depth_start` (0 m), and `depth_step`
+(5 m). ENV1 explicitly starts at 5 m to reproduce the archival method.
 
-Each run validates required columns, removes non-finite samples per variable, explicitly averages exact duplicate (distance, depth) coordinates and records counts for each variable in `manifest.json`, then interpolates using MATLAB's linear `griddata` on a 60-column and 5 m vertical grid, produces PNG sections, and writes a JSON manifest. Interpolated NaNs outside the convex hull are left blank rather than filled or extrapolated.
+Optional `geometry.origin_longitude` and `geometry.origin_latitude` (numeric degrees
+or `"median"`) specify a great-circle origin. ENV1 uses 8.9145 degrees west-positive
+and median latitude. Without geometry, the minimum observed longitude and its
+first latitude are used for backward compatibility; this is not universally the
+coastal endpoint. Signed coordinates require a consistently signed origin.
+
+Finite samples within the depth limit are retained per variable. Exact duplicate
+(distance, depth) positions are averaged explicitly. Linear `griddata` interpolation
+never extrapolates. Each variable produces a PNG and a MAT section with numeric
+values, query grids, sample mask and QC. The manifest records configuration,
+MATLAB version and SHA-256 provenance. Generated outputs stay untracked.
 
 ## Project layout
 
@@ -68,10 +83,11 @@ or, where MATLAB Build Tool is available:
 ```matlab
 buildtool test
 buildtool demo
+buildtool validate % Requires adjacent historical repository
 ```
 
 ## Scope and provenance
 
-This is a new reusable analysis engine, **not** a replacement for the archived publication workflows. Do not alter ENV1/ENV2/ENV3 source files. After ENV1 is verified against historical figures, validate unchanged MATLAB functions on ENV2 and ENV3, including ENV3 day 5 with nine station positions. Nutrient days and CTD days are not interchangeable, and static sections are not seasonal means.
+This is a new reusable analysis engine, **not** a replacement for the archived publication workflows. Do not alter ENV1/ENV2/ENV3 source files. After ENV1 numerical regression, validate unchanged MATLAB functions on ENV2 and ENV3, including ENV3 day 5 with nine station positions. Nutrient days and CTD days are not interchangeable, and static sections are not seasonal means.
 
 The program deliberately does not calculate absolute salinity, density, or mixed-layer depths yet; those require more explicit unit and QC controls.

@@ -25,7 +25,7 @@ end
 
 datasets = config.datasets;
 if iscell(datasets), datasets = [datasets{:}]; end
-outputEntries = struct('dataset',{},'variable',{},'input',{},'output',{},'valid_samples',{},'qc',{});
+outputEntries = struct('dataset',{},'variable',{},'input',{},'output',{},'valid_samples',{},'qc',{},'numeric_output',{},'input_sha256',{});
 for i = 1:numel(datasets)
     d = datasets(i);
     required = {'id','file','columns','variables','max_depth'};
@@ -35,25 +35,37 @@ for i = 1:numel(datasets)
         end
     end
     sourceFile = fullfile(configDir,string(d.file));
+    inputHash = oceanscope.file_hash(sourceFile);
     T = oceanscope.read_data(sourceFile,d);
     variables = d.variables;
     if iscell(variables), variables = [variables{:}]; end
     for j = 1:numel(variables)
         v = variables(j);
-        [f, n, qc] = oceanscope.plot_section(T, d, v);
+        [f, n, qc, section] = oceanscope.plot_section(T, d, v);
         safeId = regexprep(char(string(d.id)), '[^A-Za-z0-9_-]', '_');
         safeVar = regexprep(char(string(v.id)), '[^A-Za-z0-9_-]', '_');
         outputFile = fullfile(outputDir,sprintf('%s_%s.png',safeId,safeVar));
         cleanup = onCleanup(@() close(f));
         exportgraphics(f,outputFile,'Resolution',180,'BackgroundColor','white');
         clear cleanup
+        numericFile = replace(outputFile,'.png','.mat');
+        save(numericFile,'section');
         outputEntries(end+1) = struct('dataset',string(d.id), ... %#ok<AGROW>
             'variable',string(v.id),'input',string(sourceFile), ...
-            'output',string(outputFile),'valid_samples',n,'qc',qc);
+            'output',string(outputFile),'valid_samples',n,'qc',qc, ...
+            'numeric_output',string(numericFile),'input_sha256',inputHash);
     end
 end
-manifest = struct('config',configPath,'matlab_release',string(version('-release')), ...
-    'generated_at',string(datetime('now','Format','yyyy-MM-dd''T''HH:mm:ss')), ...
+codeFiles = [dir(fullfile(fileparts(mfilename('fullpath')),'+oceanscope','*.m')); ...
+    dir(fullfile(fileparts(mfilename('fullpath')),'run_oceanscope.m'))];
+codeHashes = struct('file',{},'sha256',{});
+for k = 1:numel(codeFiles)
+    codeHashes(end+1) = struct('file',codeFiles(k).name, ...
+        'sha256',oceanscope.file_hash(fullfile(codeFiles(k).folder,codeFiles(k).name))); %#ok<AGROW>
+end
+manifest = struct('code_sha256',codeHashes,'config',configPath,'matlab_release',string(version('-release')), ...
+    'config_sha256',oceanscope.file_hash(configPath),'resolved_config',config, ...
+    'matlab_version',version,'generated_at',string(datetime('now','Format','yyyy-MM-dd''T''HH:mm:ss')), ...
     'outputs',outputEntries);
 manifestFile = fullfile(outputDir,'manifest.json');
 fid = fopen(manifestFile,'w');
