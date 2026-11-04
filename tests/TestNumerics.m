@@ -31,6 +31,23 @@ classdef TestNumerics < matlab.unittest.TestCase
             d.interpolation = struct('typo',3);
             test.verifyError(@() oceanscope.interpolate_section(T,d,d.variables(1)),'OceanScope:InvalidConfig');
         end
+        function missingObservationsAndCustomGrid(test)
+            T = table([0;1;0;1;0;NaN;0;0;0],zeros(9,1), ...
+                [0;0;10;10;0;5;NaN;-1;20],[2;5;22;25;NaN;7;7;7;7], ...
+                'VariableNames',{'lon','lat','depth','value'});
+            original = T;
+            d = struct('columns',struct('longitude','lon','latitude','lat','depth','depth'), ...
+                'max_depth',10,'geometry',struct('origin_longitude',0,'origin_latitude',0), ...
+                'interpolation',struct('horizontal_points',7,'depth_start',2,'depth_step',3));
+            s = oceanscope.interpolate_section(T,d,struct('id','test','column','value'));
+            test.verifyEqual(s.sample_mask,[true(4,1);false(5,1)]);
+            test.verifyEqual(s.qc.excluded_samples,5);
+            test.verifyEqual(s.qc.duplicate_samples,0);
+            test.verifySize(s.values,[3,7]);
+            test.verifyEqual(s.Z(:,1),[2;5;8]);
+            test.verifyEqual(s.values,2+3*s.X/max(s.x)+2*s.Z,'AbsTol',1e-12);
+            test.verifyEqual(T,original);
+        end
         function env1Regression(test)
             root = fileparts(fileparts(mfilename('fullpath')));
             archive = fullfile(root,'..','coastal-upwelling-oceanography');

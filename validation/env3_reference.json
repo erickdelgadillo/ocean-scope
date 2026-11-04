@@ -1,0 +1,21 @@
+{
+  "archive_commit": "a97630b45dba86bd6fec92977f0c60aeb27dca91",
+  "files": [
+    {
+      "path": "scripts/longitudinal/generate_longitudinal_sections.m",
+      "sha256": "4215f124e7f7fb4ee3a708a00783b676f0a22458ee5647db3f28f15fc0b157e0"
+    },
+    {
+      "path": "scripts/longitudinal/geographic_transect_distance.m",
+      "sha256": "39dfd1d0cc8d39a56bd8dee5cef8481253739ac66154fb739106b29b31587b61"
+    },
+    {
+      "path": "data/longitudinal/ctd_env3_d5.xlsx",
+      "sha256": "a87709a898537818c067818a4140b3b9149babb021316b5727cfd97dff3fd346"
+    },
+    {
+      "path": "data/longitudinal/nuts_env3_d1.xlsx",
+      "sha256": "3d978d2256b9a042afc395cca2cdd030c4d4fcfc3c4cb6eb1dcc07ffe1d64dad"
+    }
+  ]
+}

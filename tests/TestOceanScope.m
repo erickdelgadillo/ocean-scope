@@ -15,6 +15,20 @@ classdef TestOceanScope < matlab.unittest.TestCase
             testCase.verifyNumElements(manifest.outputs,2);
             testCase.verifyTrue(isfile(manifest.outputs(1).output));
             testCase.verifyTrue(isfile(manifest.outputs(2).output));
+            testCase.verifyEqual(manifest.config_sha256,oceanscope.file_hash(manifest.config));
+            testCase.verifyEqual(manifest.resolved_config,jsondecode(fileread(manifest.config)));
+            testCase.verifyEqual(manifest.matlab_version,version);
+            for entry = manifest.outputs
+                testCase.verifyEqual(entry.input_sha256,oceanscope.file_hash(entry.input));
+                saved = load(entry.numeric_output,'section');
+                testCase.verifyEqual(saved.section.qc,entry.qc);
+                testCase.verifyEqual(nnz(saved.section.sample_mask),entry.valid_samples);
+            end
+            for entry = manifest.code_sha256
+                file = fullfile(repo,'+oceanscope',entry.file);
+                if strcmp(entry.file,'run_oceanscope.m'), file = fullfile(repo,entry.file); end
+                testCase.verifyEqual(entry.sha256,oceanscope.file_hash(file));
+            end
         end
         function duplicateCoordinatesAreAveraged(testCase)
             [x,z,y,qc] = oceanscope.aggregate_duplicates( ...
