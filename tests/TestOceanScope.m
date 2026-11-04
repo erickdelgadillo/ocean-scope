@@ -16,6 +16,34 @@ classdef TestOceanScope < matlab.unittest.TestCase
             testCase.verifyTrue(isfile(manifest.outputs(1).output));
             testCase.verifyTrue(isfile(manifest.outputs(2).output));
         end
+        function duplicateCoordinatesAreAveraged(testCase)
+            [x,z,y,qc] = oceanscope.aggregate_duplicates( ...
+                [1;1;2;2], [10;10;20;30], [12.992;12.994;5;7]);
+            testCase.verifyEqual(x,[1;2;2]);
+            testCase.verifyEqual(z,[10;20;30]);
+            testCase.verifyEqual(y,[12.993;5;7],'AbsTol',1e-12);
+            testCase.verifyEqual(qc.input_samples,4);
+            testCase.verifyEqual(qc.unique_positions,3);
+            testCase.verifyEqual(qc.duplicate_groups,1);
+            testCase.verifyEqual(qc.duplicate_samples,1);
+        end
+        function noDuplicatesRemainUnchanged(testCase)
+            [x,z,y,qc] = oceanscope.aggregate_duplicates( ...
+                [0;1;2], [0;10;20], [14;15;16]);
+            testCase.verifyEqual([x,z,y],[0 0 14;1 10 15;2 20 16]);
+            testCase.verifyEqual(qc.duplicate_samples,0);
+            testCase.verifyEqual(qc.duplicate_groups,0);
+        end
+        function rejectsInvalidAggregationInputs(testCase)
+            testCase.verifyError(@() oceanscope.aggregate_duplicates( ...
+                [1;1],[10;10],[4;NaN]),'OceanScope:InvalidSamples');
+        end
+        function demoManifestIncludesDuplicateQC(testCase)
+            repo = fileparts(fileparts(mfilename('fullpath')));
+            manifest = run_oceanscope(fullfile(repo,'configs','demo.json'));
+            testCase.verifyEqual(manifest.outputs(1).qc.duplicate_samples,0);
+            testCase.verifyEqual(manifest.outputs(2).qc.duplicate_groups,0);
+        end
         function missingInputsFail(testCase)
             d = struct('columns',struct('longitude','x','latitude','y','depth','z'), ...
                 'variables',struct('id','temperature','column','temp'));

@@ -16,3 +16,9 @@ root = fileparts(mfilename('fullpath'));
 addpath(root);
 run_oceanscope(fullfile(root,'configs','demo.json'));
 end
+
+function validateTask(~)
+root = fileparts(mfilename('fullpath'));
+addpath(root,fullfile(root,'validation'));
+validate_env1;
+end
