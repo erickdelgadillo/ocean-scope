@@ -22,3 +22,11 @@ root = fileparts(mfilename('fullpath'));
 addpath(root,fullfile(root,'validation'));
 validate_env1;
 end
+
+function validateAllTask(~)
+root = fileparts(mfilename('fullpath'));
+addpath(root,fullfile(root,'validation'));
+for campaign = ["env1","env2","env3"]
+    validate_campaign(campaign);
+end
+end
